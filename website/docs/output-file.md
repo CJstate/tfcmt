@@ -36,3 +36,7 @@ tfcmt --output plan.md plan -- terraform plan
 :::
 
 [Metadata](embedded-metadata.md) isn't embedded.
+
+:::tip
+If you want to write the result to the [GitHub Actions job summary](job-summary.md) too, use the `--job-summary` option.
+:::

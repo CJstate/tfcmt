@@ -9,6 +9,7 @@ import (
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/config"
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/notifier"
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/notifier/github"
+	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/notifier/jobsummary"
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/notifier/localfile"
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/terraform"
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/tmpl"
@@ -122,7 +123,22 @@ func (c *Controller) renderGitHubLabels() (github.ResultLabels, error) { //nolin
 	return labels, nil
 }
 
+func (c *Controller) newJobSummaryWriter() (*jobsummary.Writer, error) {
+	if !c.Config.JobSummary {
+		return nil, nil
+	}
+	writer, err := jobsummary.NewWriterFromEnv()
+	if err != nil {
+		return nil, fmt.Errorf("initialize the GitHub Actions job summary writer: %w", err)
+	}
+	return writer, nil
+}
+
 func (c *Controller) getPlanNotifier(ctx context.Context) (notifier.Notifier, error) {
+	jobSummary, err := c.newJobSummaryWriter()
+	if err != nil {
+		return nil, err
+	}
 	labels := github.ResultLabels{}
 	if !c.Config.Terraform.Plan.DisableLabel {
 		a, err := c.renderGitHubLabels()
@@ -155,6 +171,7 @@ func (c *Controller) getPlanNotifier(ctx context.Context) (notifier.Notifier, er
 			SkipNoChanges:      c.Config.Terraform.Plan.WhenNoChanges.DisableComment,
 			IgnoreWarning:      c.Config.Terraform.Plan.IgnoreWarning,
 			Masks:              c.Config.Masks,
+			JobSummary:         jobSummary,
 		})
 		if err != nil {
 			return nil, err
@@ -177,6 +194,7 @@ func (c *Controller) getPlanNotifier(ctx context.Context) (notifier.Notifier, er
 		Templates:          c.Config.Templates,
 		Masks:              c.Config.Masks,
 		DisableLabel:       c.Config.Terraform.Plan.DisableLabel,
+		JobSummary:         jobSummary,
 	}, gh)
 	if err != nil {
 		return nil, err
@@ -185,6 +203,10 @@ func (c *Controller) getPlanNotifier(ctx context.Context) (notifier.Notifier, er
 }
 
 func (c *Controller) getApplyNotifier(ctx context.Context) (notifier.Notifier, error) {
+	jobSummary, err := c.newJobSummaryWriter()
+	if err != nil {
+		return nil, err
+	}
 	if c.Config.Output != "" {
 		// Write output to file instead of github comment
 		client, err := localfile.NewClient(&localfile.Config{
@@ -199,6 +221,7 @@ func (c *Controller) getApplyNotifier(ctx context.Context) (notifier.Notifier, e
 			Templates:          c.Config.Templates,
 			Masks:              c.Config.Masks,
 			DisableLabel:       c.Config.Terraform.Plan.DisableLabel,
+			JobSummary:         jobSummary,
 		}, nil)
 		if err != nil {
 			return nil, err
@@ -226,6 +249,7 @@ func (c *Controller) getApplyNotifier(ctx context.Context) (notifier.Notifier, e
 		SkipNoChanges:      c.Config.Terraform.Plan.WhenNoChanges.DisableComment,
 		IgnoreWarning:      c.Config.Terraform.Plan.IgnoreWarning,
 		Masks:              c.Config.Masks,
+		JobSummary:         jobSummary,
 	})
 	if err != nil {
 		return nil, err

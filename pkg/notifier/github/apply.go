@@ -71,6 +71,13 @@ func (g *NotifyService) Apply(ctx context.Context, logger *slog.Logger, param *n
 
 	body = mask.Mask(body, g.client.Config.Masks)
 
+	if cfg.JobSummary != nil {
+		logger.Debug("write the result to the GitHub Actions job summary")
+		if err := cfg.JobSummary.Write(body); err != nil {
+			return fmt.Errorf("write the GitHub Actions job summary: %w", err)
+		}
+	}
+
 	logger.Debug("create a comment")
 	if err := g.client.Comment.Post(ctx, body, &PostOptions{
 		Number:   cfg.PR.Number,

@@ -9,15 +9,17 @@ import (
 )
 
 type GlobalArgs struct {
-	Owner    string
-	Repo     string
-	SHA      string
-	BuildURL string
-	LogLevel string
-	PR       int
-	Config   string
-	Var      []string
-	Output   string
+	Owner           string
+	Repo            string
+	SHA             string
+	BuildURL        string
+	LogLevel        string
+	PR              int
+	Config          string
+	Var             []string
+	Output          string
+	JobSummary      bool
+	JobSummaryCount int
 }
 
 type PlanArgs struct {
@@ -101,6 +103,15 @@ func Run(ctx context.Context, logger *slogutil.Logger, env *urfave.Env) error {
 				Name:        "output",
 				Usage:       "specify file to output result instead of posting a comment",
 				Destination: &globalArgs.Output,
+			},
+			&cli.BoolFlag{
+				Name:        "job-summary",
+				Usage:       "write the result to the GitHub Actions job summary ($GITHUB_STEP_SUMMARY) in addition to posting a comment",
+				Sources:     cli.EnvVars("TFCMT_JOB_SUMMARY"),
+				Destination: &globalArgs.JobSummary,
+				Config: cli.BoolConfig{
+					Count: &globalArgs.JobSummaryCount,
+				},
 			},
 		},
 		Commands: []*cli.Command{

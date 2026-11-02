@@ -6,6 +6,7 @@ import (
 
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/config"
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/notifier/github"
+	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/notifier/jobsummary"
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/terraform"
 )
 
@@ -38,6 +39,8 @@ type Config struct {
 
 	// For labeling
 	DisableLabel bool
+
+	JobSummary *jobsummary.Writer
 }
 
 type GitHubLabelConfig struct {

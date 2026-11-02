@@ -63,6 +63,10 @@ func parseOptsPlan(args *PlanArgs, cfg *config.Config, envs []string) error { //
 		cfg.Output = args.Output
 	}
 
+	if args.JobSummaryCount > 0 {
+		cfg.JobSummary = args.JobSummary
+	}
+
 	if args.SkipNoChangesCount > 0 {
 		cfg.Terraform.Plan.WhenNoChanges.DisableComment = args.SkipNoChanges
 	}
@@ -121,6 +125,10 @@ func parseOptsApply(args *ApplyArgs, cfg *config.Config, envs []string) error { 
 
 	if args.Output != "" {
 		cfg.Output = args.Output
+	}
+
+	if args.JobSummaryCount > 0 {
+		cfg.JobSummary = args.JobSummary
 	}
 
 	vm := make(map[string]string, len(args.Var))

@@ -23,6 +23,7 @@ type Config struct {
 	PlanPatch          bool              `json:"plan_patch,omitempty" yaml:"plan_patch"`
 	RepoOwner          string            `json:"repo_owner,omitempty" yaml:"repo_owner"`
 	RepoName           string            `json:"repo_name,omitempty" yaml:"repo_name"`
+	JobSummary         bool              `json:"job_summary,omitempty" yaml:"job_summary"`
 	Output             string            `json:"-" yaml:"-"`
 	Masks              []*Mask           `json:"-" yaml:"-"`
 }

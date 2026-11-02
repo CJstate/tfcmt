@@ -57,6 +57,13 @@ func (g *NotifyService) Apply(_ context.Context, logger *slog.Logger, param *not
 
 	body = mask.Mask(body, g.client.Config.Masks)
 
+	if cfg.JobSummary != nil {
+		logger.Debug("write the result to the GitHub Actions job summary")
+		if err := cfg.JobSummary.Write(body); err != nil {
+			return fmt.Errorf("write the GitHub Actions job summary: %w", err)
+		}
+	}
+
 	logger.Debug("writing the apply result to a file")
 	if err := g.client.Output.WriteToFile(body, cfg.OutputFile); err != nil {
 		return fmt.Errorf("write the apply result to a file: %w", err)

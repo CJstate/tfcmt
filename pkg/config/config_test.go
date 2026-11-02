@@ -111,6 +111,21 @@ This plan contains **resource deletion**. Please check the plan result very care
 	}
 }
 
+func TestLoadFileJobSummary(t *testing.T) {
+	t.Parallel()
+	path := filepath.Join(t.TempDir(), "tfcmt.yaml")
+	if err := os.WriteFile(path, []byte("job_summary: true\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var cfg Config
+	if err := cfg.LoadFile(path); err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.JobSummary {
+		t.Error("job_summary should be true")
+	}
+}
+
 func createDummy(file string) {
 	validConfig := func(file string) bool {
 		return slices.Contains([]string{

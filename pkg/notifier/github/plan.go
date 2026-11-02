@@ -82,6 +82,13 @@ func (g *NotifyService) Plan(ctx context.Context, logger *slog.Logger, param *no
 
 	body = mask.Mask(body, g.client.Config.Masks)
 
+	if cfg.JobSummary != nil {
+		logger.Debug("write the result to the GitHub Actions job summary")
+		if err := cfg.JobSummary.Write(body); err != nil {
+			return fmt.Errorf("write the GitHub Actions job summary: %w", err)
+		}
+	}
+
 	if cfg.Patch && cfg.PR.Number != 0 {
 		logger.Debug("try patching")
 		comments, err := g.client.Comment.List(ctx, cfg.Owner, cfg.Repo, cfg.PR.Number)

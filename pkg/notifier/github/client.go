@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-github/v93/github"
 	"github.com/shurcooL/githubv4"
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/config"
+	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/notifier/jobsummary"
 	"github.com/suzuki-shunsuke/tfcmt/v4/pkg/terraform"
 	"golang.org/x/oauth2"
 )
@@ -53,6 +54,7 @@ type Config struct {
 	SkipNoChanges    bool
 	IgnoreWarning    bool
 	Masks            []*config.Mask
+	JobSummary       *jobsummary.Writer
 }
 
 // PullRequest represents GitHub Pull Request metadata

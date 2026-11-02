@@ -34,6 +34,7 @@ GLOBAL OPTIONS:
    --config string                config path [$TFCMT_CONFIG]
    --var string [ --var string ]  template variables. The format of value is '<name>:<value>'. You can refer to the variable in the comment and label template using {{.Vars.<variable name>}}.
    --output string                specify file to output result instead of posting a comment
+   --job-summary                  write the result to the GitHub Actions job summary ($GITHUB_STEP_SUMMARY) in addition to posting a comment [$TFCMT_JOB_SUMMARY]
    --help, -h                     show help
    --version, -v                  print the version
 ```
@@ -70,6 +71,7 @@ GLOBAL OPTIONS:
    --config string                config path [$TFCMT_CONFIG]
    --var string [ --var string ]  template variables. The format of value is '<name>:<value>'. You can refer to the variable in the comment and label template using {{.Vars.<variable name>}}.
    --output string                specify file to output result instead of posting a comment
+   --job-summary                  write the result to the GitHub Actions job summary ($GITHUB_STEP_SUMMARY) in addition to posting a comment [$TFCMT_JOB_SUMMARY]
 ```
 
 ## tfcmt apply
@@ -100,6 +102,7 @@ GLOBAL OPTIONS:
    --config string                config path [$TFCMT_CONFIG]
    --var string [ --var string ]  template variables. The format of value is '<name>:<value>'. You can refer to the variable in the comment and label template using {{.Vars.<variable name>}}.
    --output string                specify file to output result instead of posting a comment
+   --job-summary                  write the result to the GitHub Actions job summary ($GITHUB_STEP_SUMMARY) in addition to posting a comment [$TFCMT_JOB_SUMMARY]
 ```
 
 ## tfcmt version
@@ -126,6 +129,7 @@ GLOBAL OPTIONS:
    --config string                config path [$TFCMT_CONFIG]
    --var string [ --var string ]  template variables. The format of value is '<name>:<value>'. You can refer to the variable in the comment and label template using {{.Vars.<variable name>}}.
    --output string                specify file to output result instead of posting a comment
+   --job-summary                  write the result to the GitHub Actions job summary ($GITHUB_STEP_SUMMARY) in addition to posting a comment [$TFCMT_JOB_SUMMARY]
 ```
 
 ## tfcmt completion

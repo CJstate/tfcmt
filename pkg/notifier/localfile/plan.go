@@ -64,6 +64,13 @@ func (g *NotifyService) Plan(ctx context.Context, logger *slog.Logger, param *no
 
 	body = mask.Mask(body, g.client.Config.Masks)
 
+	if cfg.JobSummary != nil {
+		logger.Debug("write the result to the GitHub Actions job summary")
+		if err := cfg.JobSummary.Write(body); err != nil {
+			return fmt.Errorf("write the GitHub Actions job summary: %w", err)
+		}
+	}
+
 	logger.Debug("write a plan output to a file")
 	if err := g.client.Output.WriteToFile(body, cfg.OutputFile); err != nil {
 		return fmt.Errorf("write a plan output to a file: %w", err)

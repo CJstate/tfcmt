@@ -49,6 +49,9 @@
         },
         "repo_name": {
           "type": "string"
+        },
+        "job_summary": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false,
