@@ -285,6 +285,11 @@ type MovedResource struct {
 	After  string
 }
 
+// String returns the moved resource paths in the "before => after" format.
+func (r *MovedResource) String() string {
+	return r.Before + " => " + r.After
+}
+
 // Parse returns ParseResult related with terraform apply
 func (p *ApplyParser) Parse(body string) ParseResult {
 	var hasError bool

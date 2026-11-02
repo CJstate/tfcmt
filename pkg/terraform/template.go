@@ -226,29 +226,23 @@ func (t *Template) Execute() (string, error) {
 		"result":      "{{if .Result}}<pre><code>{{ .Result }}</code></pre>{{end}}",
 		"updated_resources": `{{if .CreatedResources}}
 * Create
-{{- range .CreatedResources}}
-  * {{.}}
-{{- end}}{{end}}{{if .UpdatedResources}}
+{{wrapCode (join "\n" .CreatedResources)}}
+{{- end}}{{if .UpdatedResources}}
 * Update
-{{- range .UpdatedResources}}
-  * {{.}}
-{{- end}}{{end}}{{if .DeletedResources}}
+{{wrapCode (join "\n" .UpdatedResources)}}
+{{- end}}{{if .DeletedResources}}
 * Delete
-{{- range .DeletedResources}}
-  * {{.}}
-{{- end}}{{end}}{{if .ReplacedResources}}
+{{wrapCode (join "\n" .DeletedResources)}}
+{{- end}}{{if .ReplacedResources}}
 * Replace
-{{- range .ReplacedResources}}
-  * {{.}}
-{{- end}}{{end}}{{if .ImportedResources}}
+{{wrapCode (join "\n" .ReplacedResources)}}
+{{- end}}{{if .ImportedResources}}
 * Import
-{{- range .ImportedResources}}
-  * {{.}}
-{{- end}}{{end}}{{if .MovedResources}}
+{{wrapCode (join "\n" .ImportedResources)}}
+{{- end}}{{if .MovedResources}}
 * Move
-{{- range .MovedResources}}
-  * {{.Before}} => {{.After}}
-{{- end}}{{end}}`,
+{{wrapCode (join "\n" .MovedResources)}}
+{{- end}}`,
 		"deletion_warning": `{{if .HasDestroy}}
 ### :warning: Resource Deletion will happen
 This plan contains resource delete operation. Please check the plan result very carefully!
