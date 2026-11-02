@@ -9,15 +9,17 @@ import (
 )
 
 type GlobalArgs struct {
-	Owner    string
-	Repo     string
-	SHA      string
-	BuildURL string
-	LogLevel string
-	PR       int
-	Config   string
-	Var      []string
-	Output   string
+	Owner        string
+	Repo         string
+	SHA          string
+	BuildURL     string
+	LogLevel     string
+	PR           int
+	Config       string
+	Var          []string
+	Output       string
+	Comment      bool
+	CommentCount int
 }
 
 type PlanArgs struct {
@@ -101,6 +103,16 @@ func Run(ctx context.Context, logger *slogutil.Logger, env *urfave.Env) error {
 				Name:        "output",
 				Usage:       "specify file to output result instead of posting a comment",
 				Destination: &globalArgs.Output,
+			},
+			&cli.BoolFlag{
+				Name:        "comment",
+				Aliases:     []string{"output-comment"},
+				Usage:       "post a comment to GitHub even when --output is specified",
+				Sources:     cli.EnvVars("TFCMT_COMMENT", "TFCMT_OUTPUT_COMMENT"),
+				Destination: &globalArgs.Comment,
+				Config: cli.BoolConfig{
+					Count: &globalArgs.CommentCount,
+				},
 			},
 		},
 		Commands: []*cli.Command{

@@ -49,6 +49,9 @@
         },
         "repo_name": {
           "type": "string"
+        },
+        "output_comment": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false,

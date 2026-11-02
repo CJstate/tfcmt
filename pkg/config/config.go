@@ -24,6 +24,7 @@ type Config struct {
 	RepoOwner          string            `json:"repo_owner,omitempty" yaml:"repo_owner"`
 	RepoName           string            `json:"repo_name,omitempty" yaml:"repo_name"`
 	Output             string            `json:"-" yaml:"-"`
+	OutputComment      bool              `json:"output_comment,omitempty" yaml:"output_comment"`
 	Masks              []*Mask           `json:"-" yaml:"-"`
 }
 
@@ -117,7 +118,7 @@ func (c *Config) LoadFile(path string) error {
 
 // Validate validates config file
 func (c *Config) Validate() error {
-	if c.Output != "" {
+	if c.Output != "" && !c.OutputComment {
 		return nil
 	}
 	if c.CI.Owner == "" {

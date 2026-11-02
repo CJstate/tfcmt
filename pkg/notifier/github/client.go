@@ -52,6 +52,7 @@ type Config struct {
 	Patch            bool
 	SkipNoChanges    bool
 	IgnoreWarning    bool
+	SkipLabelUpdate  bool
 	Masks            []*config.Mask
 }
 

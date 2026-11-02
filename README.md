@@ -9,6 +9,16 @@ Fork of [mercari/tfnotify](https://github.com/mercari/tfnotify), enhancing tfnot
 - https://suzuki-shunsuke.github.io/tfcmt/
 - [code](website)
 
+## Output to a file and post a comment at the same time
+
+With `--comment`, tfcmt writes the rendered result to the file specified by `--output` and posts the GitHub comment in one run.
+
+```sh
+tfcmt --output plan.md --comment plan -- terraform plan
+```
+
+See [Output the result to a local file](website/docs/output-file.md).
+
 > tfcmt only supports notifications for GitHub. For GitLab, try [tfcmt-gitlab](https://github.com/hirosassa/tfcmt-gitlab) (fork of tfcmt).
 
 ## Who uses tfcmt?

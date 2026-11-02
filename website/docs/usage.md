@@ -34,6 +34,7 @@ GLOBAL OPTIONS:
    --config string                config path [$TFCMT_CONFIG]
    --var string [ --var string ]  template variables. The format of value is '<name>:<value>'. You can refer to the variable in the comment and label template using {{.Vars.<variable name>}}.
    --output string                specify file to output result instead of posting a comment
+   --comment, --output-comment    post a comment to GitHub even when --output is specified [$TFCMT_COMMENT, $TFCMT_OUTPUT_COMMENT]
    --help, -h                     show help
    --version, -v                  print the version
 ```
@@ -70,6 +71,7 @@ GLOBAL OPTIONS:
    --config string                config path [$TFCMT_CONFIG]
    --var string [ --var string ]  template variables. The format of value is '<name>:<value>'. You can refer to the variable in the comment and label template using {{.Vars.<variable name>}}.
    --output string                specify file to output result instead of posting a comment
+   --comment, --output-comment    post a comment to GitHub even when --output is specified [$TFCMT_COMMENT, $TFCMT_OUTPUT_COMMENT]
 ```
 
 ## tfcmt apply
@@ -100,6 +102,7 @@ GLOBAL OPTIONS:
    --config string                config path [$TFCMT_CONFIG]
    --var string [ --var string ]  template variables. The format of value is '<name>:<value>'. You can refer to the variable in the comment and label template using {{.Vars.<variable name>}}.
    --output string                specify file to output result instead of posting a comment
+   --comment, --output-comment    post a comment to GitHub even when --output is specified [$TFCMT_COMMENT, $TFCMT_OUTPUT_COMMENT]
 ```
 
 ## tfcmt version
@@ -126,6 +129,7 @@ GLOBAL OPTIONS:
    --config string                config path [$TFCMT_CONFIG]
    --var string [ --var string ]  template variables. The format of value is '<name>:<value>'. You can refer to the variable in the comment and label template using {{.Vars.<variable name>}}.
    --output string                specify file to output result instead of posting a comment
+   --comment, --output-comment    post a comment to GitHub even when --output is specified [$TFCMT_COMMENT, $TFCMT_OUTPUT_COMMENT]
 ```
 
 ## tfcmt completion

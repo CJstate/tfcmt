@@ -88,6 +88,7 @@ If the text includes <code>\`\`\`</code>, the text wraps with `<pre><code>`, oth
 ## Default Configuration
 
 ```yaml
+output_comment: false # tfcmt >= v4.15.0
 embedded_var_names: []
 templates:
   plan_title: "## {{if eq .ExitCode 1}}:x: {{end}}Plan Result{{if .Vars.target}} ({{.Vars.target}}){{end}}"

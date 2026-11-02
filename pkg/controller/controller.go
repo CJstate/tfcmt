@@ -122,89 +122,7 @@ func (c *Controller) renderGitHubLabels() (github.ResultLabels, error) { //nolin
 	return labels, nil
 }
 
-func (c *Controller) getPlanNotifier(ctx context.Context) (notifier.Notifier, error) {
-	labels := github.ResultLabels{}
-	if !c.Config.Terraform.Plan.DisableLabel {
-		a, err := c.renderGitHubLabels()
-		if err != nil {
-			return nil, err
-		}
-		labels = a
-	}
-	var gh *github.NotifyService
-	if !c.Config.Terraform.Plan.DisableLabel || c.Config.Output == "" {
-		client, err := github.NewClient(ctx, &github.Config{
-			BaseURL:         c.Config.GHEBaseURL,
-			GraphQLEndpoint: c.Config.GHEGraphQLEndpoint,
-			Owner:           c.Config.CI.Owner,
-			Repo:            c.Config.CI.Repo,
-			PR: github.PullRequest{
-				Revision: c.Config.CI.SHA,
-				Number:   c.Config.CI.PRNumber,
-			},
-			CI:                 c.Config.CI.Link,
-			Parser:             c.Parser,
-			UseRawOutput:       c.Config.Terraform.UseRawOutput,
-			Template:           c.Template,
-			ParseErrorTemplate: c.ParseErrorTemplate,
-			ResultLabels:       labels,
-			Vars:               c.Config.Vars,
-			EmbeddedVarNames:   c.Config.EmbeddedVarNames,
-			Templates:          c.Config.Templates,
-			Patch:              c.Config.PlanPatch,
-			SkipNoChanges:      c.Config.Terraform.Plan.WhenNoChanges.DisableComment,
-			IgnoreWarning:      c.Config.Terraform.Plan.IgnoreWarning,
-			Masks:              c.Config.Masks,
-		})
-		if err != nil {
-			return nil, err
-		}
-		gh = client.Notify
-	}
-	if c.Config.Output == "" {
-		return gh, nil
-	}
-	// Write output to file instead of github comment
-	client, err := localfile.NewClient(&localfile.Config{
-		OutputFile:         c.Config.Output,
-		Parser:             c.Parser,
-		UseRawOutput:       c.Config.Terraform.UseRawOutput,
-		CI:                 c.Config.CI.Link,
-		Template:           c.Template,
-		ParseErrorTemplate: c.ParseErrorTemplate,
-		Vars:               c.Config.Vars,
-		EmbeddedVarNames:   c.Config.EmbeddedVarNames,
-		Templates:          c.Config.Templates,
-		Masks:              c.Config.Masks,
-		DisableLabel:       c.Config.Terraform.Plan.DisableLabel,
-	}, gh)
-	if err != nil {
-		return nil, err
-	}
-	return client.Notify, nil
-}
-
-func (c *Controller) getApplyNotifier(ctx context.Context) (notifier.Notifier, error) {
-	if c.Config.Output != "" {
-		// Write output to file instead of github comment
-		client, err := localfile.NewClient(&localfile.Config{
-			OutputFile:         c.Config.Output,
-			Parser:             c.Parser,
-			UseRawOutput:       c.Config.Terraform.UseRawOutput,
-			CI:                 c.Config.CI.Link,
-			Template:           c.Template,
-			ParseErrorTemplate: c.ParseErrorTemplate,
-			Vars:               c.Config.Vars,
-			EmbeddedVarNames:   c.Config.EmbeddedVarNames,
-			Templates:          c.Config.Templates,
-			Masks:              c.Config.Masks,
-			DisableLabel:       c.Config.Terraform.Plan.DisableLabel,
-		}, nil)
-		if err != nil {
-			return nil, err
-		}
-		return client.Notify, nil
-	}
+func (c *Controller) newGitHubNotifier(ctx context.Context, labels github.ResultLabels, skipLabelUpdate bool) (*github.NotifyService, error) {
 	client, err := github.NewClient(ctx, &github.Config{
 		BaseURL:         c.Config.GHEBaseURL,
 		GraphQLEndpoint: c.Config.GHEGraphQLEndpoint,
@@ -219,16 +137,99 @@ func (c *Controller) getApplyNotifier(ctx context.Context) (notifier.Notifier, e
 		UseRawOutput:       c.Config.Terraform.UseRawOutput,
 		Template:           c.Template,
 		ParseErrorTemplate: c.ParseErrorTemplate,
+		ResultLabels:       labels,
 		Vars:               c.Config.Vars,
 		EmbeddedVarNames:   c.Config.EmbeddedVarNames,
 		Templates:          c.Config.Templates,
 		Patch:              c.Config.PlanPatch,
 		SkipNoChanges:      c.Config.Terraform.Plan.WhenNoChanges.DisableComment,
 		IgnoreWarning:      c.Config.Terraform.Plan.IgnoreWarning,
+		SkipLabelUpdate:    skipLabelUpdate,
 		Masks:              c.Config.Masks,
 	})
 	if err != nil {
 		return nil, err
 	}
 	return client.Notify, nil
+}
+
+func (c *Controller) getPlanNotifier(ctx context.Context) (notifier.Notifier, error) {
+	labels := github.ResultLabels{}
+	if !c.Config.Terraform.Plan.DisableLabel {
+		a, err := c.renderGitHubLabels()
+		if err != nil {
+			return nil, err
+		}
+		labels = a
+	}
+	// Output and comment can be enabled at the same time. In that case the local
+	// file notifier updates labels, so the GitHub notifier skips label updates.
+	skipLabelUpdate := c.Config.Output != "" && c.Config.OutputComment
+	var gh *github.NotifyService
+	if !c.Config.Terraform.Plan.DisableLabel || c.Config.Output == "" || c.Config.OutputComment {
+		a, err := c.newGitHubNotifier(ctx, labels, skipLabelUpdate)
+		if err != nil {
+			return nil, err
+		}
+		gh = a
+	}
+	if c.Config.Output == "" {
+		return gh, nil
+	}
+	var labeler localfile.Labeler
+	if gh != nil {
+		labeler = gh
+	}
+	// Write output to a file. If --comment is set, also post a GitHub comment.
+	client, err := localfile.NewClient(&localfile.Config{
+		OutputFile:         c.Config.Output,
+		Parser:             c.Parser,
+		UseRawOutput:       c.Config.Terraform.UseRawOutput,
+		CI:                 c.Config.CI.Link,
+		Template:           c.Template,
+		ParseErrorTemplate: c.ParseErrorTemplate,
+		Vars:               c.Config.Vars,
+		EmbeddedVarNames:   c.Config.EmbeddedVarNames,
+		Templates:          c.Config.Templates,
+		Masks:              c.Config.Masks,
+		DisableLabel:       c.Config.Terraform.Plan.DisableLabel,
+	}, labeler)
+	if err != nil {
+		return nil, err
+	}
+	if c.Config.OutputComment {
+		return notifier.NewMultiNotifier(client.Notify, gh), nil
+	}
+	return client.Notify, nil
+}
+
+func (c *Controller) getApplyNotifier(ctx context.Context) (notifier.Notifier, error) {
+	if c.Config.Output == "" {
+		return c.newGitHubNotifier(ctx, github.ResultLabels{}, false)
+	}
+	// Write output to a file. If --comment is set, also post a GitHub comment.
+	client, err := localfile.NewClient(&localfile.Config{
+		OutputFile:         c.Config.Output,
+		Parser:             c.Parser,
+		UseRawOutput:       c.Config.Terraform.UseRawOutput,
+		CI:                 c.Config.CI.Link,
+		Template:           c.Template,
+		ParseErrorTemplate: c.ParseErrorTemplate,
+		Vars:               c.Config.Vars,
+		EmbeddedVarNames:   c.Config.EmbeddedVarNames,
+		Templates:          c.Config.Templates,
+		Masks:              c.Config.Masks,
+		DisableLabel:       c.Config.Terraform.Plan.DisableLabel,
+	}, nil)
+	if err != nil {
+		return nil, err
+	}
+	if !c.Config.OutputComment {
+		return client.Notify, nil
+	}
+	gh, err := c.newGitHubNotifier(ctx, github.ResultLabels{}, true)
+	if err != nil {
+		return nil, err
+	}
+	return notifier.NewMultiNotifier(client.Notify, gh), nil
 }

@@ -9,6 +9,68 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestLoadFileOutputComment(t *testing.T) {
+	t.Parallel()
+	configFile := filepath.Join(t.TempDir(), "tfcmt.yaml")
+	if err := os.WriteFile(configFile, []byte("output_comment: true\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var cfg Config
+	if err := cfg.LoadFile(configFile); err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.OutputComment {
+		t.Error("output_comment isn't loaded")
+	}
+}
+
+func TestValidate(t *testing.T) {
+	t.Parallel()
+	testCases := []struct {
+		name string
+		cfg  Config
+		ok   bool
+	}{
+		{
+			name: "output only doesn't require GitHub repository information",
+			cfg: Config{
+				Output: "plan.md",
+			},
+			ok: true,
+		},
+		{
+			name: "output with comment requires GitHub repository information",
+			cfg: Config{
+				Output:        "plan.md",
+				OutputComment: true,
+			},
+			ok: false,
+		},
+		{
+			name: "output with comment and repository information",
+			cfg: Config{
+				Output:        "plan.md",
+				OutputComment: true,
+				CI: CI{
+					Owner: "owner",
+					Repo:  "repo",
+					SHA:   "revision",
+				},
+			},
+			ok: true,
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			cfg := testCase.cfg
+			if err := cfg.Validate(); (err == nil) != testCase.ok {
+				t.Errorf("got error %v but want ok %v", err, testCase.ok)
+			}
+		})
+	}
+}
+
 func TestLoadFile(t *testing.T) {
 	t.Parallel()
 	testCases := []struct {

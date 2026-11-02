@@ -36,7 +36,7 @@ func (g *NotifyService) Plan(ctx context.Context, logger *slog.Logger, param *no
 		}
 	}
 
-	if cfg.PR.IsNumber() && cfg.ResultLabels.HasAnyLabelDefined() {
+	if !cfg.SkipLabelUpdate && cfg.PR.IsNumber() && cfg.ResultLabels.HasAnyLabelDefined() {
 		errMsgs = append(errMsgs, g.UpdateLabels(ctx, logger, result)...)
 	}
 

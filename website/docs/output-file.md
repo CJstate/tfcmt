@@ -24,6 +24,27 @@ tfcmt --output apply.md apply -- terraform apply
 If a specified file doesn't exist, the file is created.
 If the file already exist, the file content is appended.
 
+## Output to a file and post a comment at the same time
+
+[#1412](https://github.com/suzuki-shunsuke/tfcmt/issues/1412) `tfcmt >= v4.15.0`
+
+By default `--output` writes the result to a file instead of posting a comment.
+If you want to do both in one run, set the `--comment` option (`--output-comment` is an alias).
+
+```sh
+tfcmt --output plan.md --comment plan -- terraform plan
+```
+
+The option is available for both `tfcmt plan` and `tfcmt apply`.
+You can also enable it in the configuration file.
+
+```yaml
+output_comment: true
+```
+
+The command line option `--comment` takes precedence over the configuration file option `output_comment`.
+If `output_comment` is true but `--output` isn't set, tfcmt posts a comment as usual.
+
 :::tip
 If you want to overwrite the file content instead of appending, please make [the file empty](https://www.tecmint.com/empty-delete-file-content-linux/) before running tfcmt.
 
@@ -35,4 +56,5 @@ tfcmt --output plan.md plan -- terraform plan
 ```
 :::
 
-[Metadata](embedded-metadata.md) isn't embedded.
+[Metadata](embedded-metadata.md) isn't embedded in the output file.
+If `--comment` is set, metadata is embedded in the GitHub comment as usual.

@@ -11,6 +11,7 @@ sidebar_position: 300
 - TFCMT_PR_NUMBER
 - TFCMT_CONFIG
 - TFCMT_DISABLE_LABEL (tfcmt >= v4.10.0)
+- TFCMT_COMMENT, TFCMT_OUTPUT_COMMENT (tfcmt >= v4.15.0)
 - [Native support of some CI platforms](#native-support-of-some-ci-platforms)
 - [Custom Environment Variable Definition](#custom-environment-variable-definition)
 
